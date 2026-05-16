@@ -1,34 +1,20 @@
 import { StatusBar } from 'expo-status-bar';
 import { StyleSheet, Text, View, Pressable } from 'react-native';
 import React, { useState } from "react";
-import { Calendar, LocaleConfig } from 'react-native-calendars';
-
-/* 🌍 ESPAÑOL */
-LocaleConfig.locales["es"] = {
-  monthNames: [
-    "Enero","Febrero","Marzo","Abril","Mayo","Junio",
-    "Julio","Agosto","Septiembre","Octubre","Noviembre","Diciembre"
-  ],
-  monthNamesShort: [
-    "Ene.","Feb.","Mar.","Abr.","May.","Jun.",
-    "Jul.","Ago.","Sep.","Oct.","Nov.","Dic."
-  ],
-  dayNames: [
-    "Domingo","Lunes","Martes","Miércoles","Jueves","Viernes","Sábado"
-  ],
-  dayNamesShort: ["Dom","Lun","Mar","Mié","Jue","Vie","Sáb"],
-  today: "Hoy"
-};
-
-LocaleConfig.defaultLocale = "es";
+import { Calendar } from 'react-native-calendars';
+import './calendarLocale';
 export default function App() {
+  //Obtenemos la fecha de hoy
   const today = new Date().toISOString().split('T')[0];
   //Se crean 2 variables. Una para guardar el estado actual (en este caso un 
   // objeto vacio) y otra para actualizar dicho estado (mediante una función)
   const [markedDates, setMarkedDates] = useState({});
+  const [eventText, setEventText] = useState('');
+  const [events, setEvents] = useState({});
+  const [selectedDay, setSelectedDay] = useState(null);
   //Se crea una funcion flecha que se ejecuta cada vez que se preciona un <<día>> selecionado
   const onDayPress = (date) => {
-      //permite actualizar el estado actual
+    //permite actualizar el estado actual
     setMarkedDates((prev) => {
       //Se alamacena el valor anterior de --prev-- La primera vez vale su valor es prev={}     
       const previousDay = { ...prev };
@@ -46,16 +32,17 @@ export default function App() {
 
   return (
     <View style={styles.container}>
-      <Calendar
-        onDayPress={(day) => onDayPress(day.dateString)}
-        style={{ backgroundColor: 'white' }}
-        
+      <Calendar firstDay={1} style={styles.container_calendar}
+        //función que permite estilizaciones personalisadas. Esta recibe un objeto 
+        // con varias propiedades (información de la fecha, estado)
         dayComponent={({ date, state }) => {
+          //se almacena un boleano 
           const isToday = date.dateString === today;
+          console.log(isToday)
+          //Si no existe el objeto se retorna un null
           if (!date) return null;
-
+          //Si la fecha exite se coloca un true en isMarked caso contraio un false
           const isMarked = !!markedDates[date.dateString];
-
           return (
             <Pressable
               onPress={() => onDayPress(date.dateString)}
@@ -64,8 +51,8 @@ export default function App() {
               <View
                 style={[
                   styles.dayBox,
-                  isToday && styles.backText,
-                  isMarked && styles.dayBoxMarked ,
+                  isToday, //&& styles.backText,
+                  isMarked && styles.dayBoxMarked,
                 ]}
               >
                 <Text
@@ -74,10 +61,11 @@ export default function App() {
                     state === 'disabled' && styles.disabledText,
                     isMarked && styles.markedText,
                     isToday && styles.todayText
-                    
+
                   ]}
                 >
                   {date.day}
+
                 </Text>
               </View>
             </Pressable>
@@ -97,7 +85,11 @@ const styles = StyleSheet.create({
     paddingTop: 50,
     backgroundColor: '#fff',
   },
+  container_calendar: {
+    backgroundColor: '#037a0b',
 
+
+  },
   text: {
     fontSize: 20,
     textAlign: 'center',
@@ -123,6 +115,7 @@ const styles = StyleSheet.create({
   dayText: {
     color: '#333',
     fontSize: 14,
+    fontWeight: "bold"
   },
 
   markedText: {
@@ -131,12 +124,12 @@ const styles = StyleSheet.create({
 
   disabledText: {
     opacity: 0.4,
-  },todayText:{
-    color:'white',
-  
-
+  }, todayText: {
+    color: '#ea9103',
+    fontWeight: '900',
+    fontSize: 15
   },
-  backText:{
-    backgroundColor:'rgb(0, 166, 255)'
-  }
+  //backText:{
+  //  backgroundColor:'rgb(0, 166, 255)'
+  // }
 });
